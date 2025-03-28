@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, FileCheck, Search, Wallet } from 'lucide-react';
 import { useAccount, useConnect, useDisconnect, useWriteContract, useReadContract, useWatchContractEvent, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
@@ -28,6 +29,7 @@ function App() {
   const [alerts, setAlerts] = useState<AlertEvent[]>([]);
   const [registeredMortgages, setRegisteredMortgages] = useState<MortgageEvent[]>([]);
   const [pendingTxHash, setPendingTxHash] = useState<`0x${string}` | null>(null);
+  const [isBankView, setIsBankView] = useState(false);
 
   const { address, isConnected } = useAccount();
   const { connect } = useConnect();
@@ -199,8 +201,23 @@ function App() {
             </div>
           )}
 
+          <div className="flex mb-4 space-x-4">
+            <button 
+              onClick={() => setIsBankView(false)}
+              className={`px-4 py-2 rounded-md ${!isBankView ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+            >
+              Register
+            </button>
+            <button 
+              onClick={() => setIsBankView(true)}
+              className={`px-4 py-2 rounded-md ${isBankView ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+            >
+              Bank
+            </button>
+          </div>
+
           <div className="bg-white rounded-lg shadow-xl p-6 mb-8">
-            <form onSubmit={handleRegisterMortgage} className="space-y-4">
+            <form onSubmit={isBankView ? handleCheckMortgage : handleRegisterMortgage} className="space-y-4">
               <div>
                 <label htmlFor="propertyDetails" className="block text-sm font-medium text-gray-700 mb-1">
                   Property Details
@@ -217,24 +234,25 @@ function App() {
               </div>
 
               <div className="flex gap-4">
-                <button
-                  type="submit"
-                  disabled={loading || isPending || isConfirming || !isConnected}
-                  className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  <FileCheck className="w-5 h-5" />
-                  Register Mortgage
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleCheckMortgage}
-                  disabled={loading || !isConnected}
-                  className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  <Search className="w-5 h-5" />
-                  Check Property
-                </button>
+                {!isBankView ? (
+                  <button
+                    type="submit"
+                    disabled={loading || isPending || isConfirming || !isConnected}
+                    className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <FileCheck className="w-5 h-5" />
+                    Register Mortgage
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={loading || !isConnected}
+                    className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <Search className="w-5 h-5" />
+                    Check Property
+                  </button>
+                )}
               </div>
             </form>
 
